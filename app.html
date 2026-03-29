@@ -505,34 +505,38 @@ body.history-open #historyContainer {
       "</div>";
   };
 
-  window._cb = function (p) {
-    try {
-      if (!p.ok) {
-        console.error("Terminal check failed:", p);
-        _s("TERMINAL ERROR: " + p.error);
-        return;
-      }
-
-      const d = new Date();
-      const r = p.terminals.find(e =>
-        e.outlet === _o &&
-        e.terminal === _t &&
-        e.active === "Y" &&
-        (!e.expiry || new Date(e.expiry) >= d)
-      );
-
-      if (!r) {
-        _s("TERMINAL DISABLED<br><br>Contact Head Office");
-        return;
-      }
-
-      console.log("✅ Terminal validated");
-      document.getElementById("pinModal").style.display = "flex";
-
-    } catch {
-      _s("LICENSE SERVER UNREACHABLE");
+window._cb = function (p) {
+  try {
+    if (!p.ok) {
+      console.error("Terminal check failed:", p);
+      _s("TERMINAL ERROR: " + p.error);
+      return;
     }
-  };
+
+    const d = new Date();
+    const r = p.terminals.find(e =>
+      e.outlet === _o &&
+      e.terminal === _t &&
+      e.active === "Y" &&
+      (!e.expiry || new Date(e.expiry) >= d)
+    );
+
+    if (!r) {
+      _s("TERMINAL DISABLED<br><br>Contact Head Office");
+      return;
+    }
+
+    console.log("✅ Terminal validated");
+
+    // 🔹 Only show PIN modal if there's NO existing session
+    if (!window.SESSION_TOKEN && !sessionStorage.getItem("cpcc_session")) {
+      document.getElementById("pinModal").style.display = "flex";
+    }
+
+  } catch {
+    _s("LICENSE SERVER UNREACHABLE");
+  }
+};
 
   
   window.TERMINAL_URL = _u;
@@ -1352,7 +1356,6 @@ window._uc = async function () {
     cpcc.onclick = () => { _ai = cpcc; safeShow(numpad); safeHide(keyboard); };
     remarks.onclick = () => { _ai = remarks; safeShow(keyboard); safeHide(numpad); };
   });
-
 
   /* ===== PAD CONTROLS ===== */
   window.padInput = v => { if (_ai) _ai.value += v; };
