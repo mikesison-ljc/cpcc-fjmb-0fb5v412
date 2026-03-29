@@ -507,11 +507,7 @@ body.history-open #historyContainer {
 
   window._cb = function (p) {
     try {
-      if (!p.ok) {
-        console.error("Terminal check failed:", p);
-        _s("TERMINAL ERROR: " + p.error);
-        return;
-      }
+      if (!p.ok) throw 0;
 
       const d = new Date();
       const r = p.terminals.find(e =>
@@ -568,20 +564,11 @@ body.history-open #historyContainer {
     }
 
     if (r.valid) {
-
-      // ✅ STORE SESSION TOKEN
-      window.SESSION_TOKEN = r.sessionToken;
-
-      console.log("SESSION TOKEN:", window.SESSION_TOKEN);
-
       const m = document.getElementById("pinModal");
       if (m) m.style.display = "none";
 
       const l = document.getElementById("lockTimer");
       if (l) l.style.display = "none";
-
-      // ✅ NOW validate terminal AFTER PIN
-      validateTerminal();
 
       window._sa();
       return;
